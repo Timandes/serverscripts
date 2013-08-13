@@ -1,0 +1,42 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          whtimserver
+# Required-Start:    $remote_fs $local_fs $syslog
+# Required-Stop:     $remote_fs $local_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start or stop the TEST Program.
+### END INIT INFO
+
+. /etc/rc.d/init.d/functions
+
+LOGFILE="/var/log/whtimserver.log"
+PIDFILE="/var/run/whtimserver.pid"
+APPPATH="/usr/local/imserver/start.sh"
+APPNAME="WHTIM Server"
+STARTSTOPDAEMON="/usr/local/bin/start-stop-daemon"
+
+case "$1" in
+start)
+    echo -n "Starting $APPNAME: "
+    ($APPPATH $PIDFILE >>$LOGFILE 2>&1 &) && success || failure
+    echo    
+;;
+stop)
+    echo -n "Stopping $APPNAME: "
+    $STARTSTOPDAEMON --stop --pidfile $PIDFILE && success || failure
+    echo
+
+    rm -rf $PIDFILE
+;;
+force-reload|restart)
+    $0 stop
+    $0 start
+;;
+*)
+    echo "Usage: $0 {start|stop|restart|force-reload}"
+    exit 1
+esac
+
+exit 0
